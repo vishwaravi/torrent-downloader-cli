@@ -4,14 +4,20 @@ echo -e "\e[36m Downloading Qbittorrent nox...\e[0m"
 sudo apt install qbittorrent-nox -y
 echo -e "\e[36m Installed qbittorrent-nox \e[0m"
 
-echo -e "\e[36m starting serveo...\e[0m"
-ssh -o StrictHostKeyChecking=no -R 80:localhost:8080 serveo.net > serveo.log &
-serveo_pid=$!
-sleep 2
+sleep 1
+
 echo -e "\e[36m started serveo \e[0m"
 echo "y" | qbittorrent-nox > qbitt_out.log 2>&1 &
 qbit_pid=$! 
+
+sleep 3
+
+echo -e "\e[36m starting serveo...\e[0m"
+ssh -o StrictHostKeyChecking=no -R 80:localhost:8080 serveo.net > serveo.log &
+serveo_pid=$!
+
 sleep 1
+
 qbit=$(cat qbitt_out.log)
 serveo=$(cat serveo.log)
 
