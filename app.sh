@@ -73,7 +73,7 @@ while true; do
 
     case $choice in
         1) downloader ;;
-        2) echo "You selected Option 2";;
+        2) cloud_transfer ;;
         3) echo "You selected Option 3";;
         4) echo "Exiting..."; exit;;
         *) echo "Invalid choice, try again!"; sleep 3;;
