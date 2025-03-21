@@ -12,54 +12,71 @@ NC='\033[0m'
 #------------------------------
 
 downloader(){
-    echo -e "\e[36m Downloading Qbittorrent nox...\e[0m"
+    echo -e "$BLUE Downloading Qbittorrent nox...$NC"
     sudo apt install qbittorrent-nox -y
-    echo -e "\e[36m Installed qbittorrent-nox \e[0m"
+    echo -e "$BLUE Installed qbittorrent-nox $NC"
     
     sleep 1
 
-    echo -e "\e[36m Starting qbittorrent Client \e[0m"
+    echo -e "$BLUE Starting qbittorrent Client $NC"
     yes | qbittorrent-nox > qbitt_out.log &
     qbit_pid=$! 
-    echo -e "\e[36m wait.... \e[0m"
+    echo -e "$BLUE wait.... $NC"
 
     sleep 4
 
     ssh -T  -o StrictHostKeyChecking=no -R 80:localhost:8080 serveo.net > serveo.log  2>&1 & 
     serveo_pid=$!
-    echo -e "\e[36m wait.... \e[0m"
+    echo -e "$BLUE wait.... $NC"
 
     sleep 4
 
     qbit=$(cat qbitt_out.log)
     serveo=$(cat serveo.log)
 
-    echo -e "\e[36m torrent client Started...\e[0m"
-    echo -e "\e[32m $qbit \e[0m"
-    echo -e "\e[36m Running at : $serveo \e[0m"
-    echo -e "\e[36m Paste the link on Browser : \e[0m"
-    echo -e "\e[36m stop ? [enter] \e[0m" 
+    echo -e "$BLUE torrent client Started... $NC"
+    echo -e "$BLUE $qbit $NC"
+    echo -e "$BLUE Running at : $serveo $NC"
+    echo -e "$BLUE Paste the link on Browser : $NC"
+    echo -e "$GREEN stop ? [enter] $NC" 
     read choise
 
     kill $serveo_pid
     kill $qbit_pid
 
-    echo -e "\e[32m BYE...\e[0m"
+    echo -e "$GREEN BYE... $NC"
 }
 
 cloud_transfer(){
+    echo -e "$BLUE Installing Rclone.. $NC"
+    sudo apt install rclone
+    echo -e "$GREEN Installed Rclone. $NC"
+
+    echo -e "$BLUE Do you have rclone.conf for your cloud ? [y/n] $NC"
+    read ans
+
+    if [[ $ans == "n" ]]; then
+        echo "please create a rclone.conf and place it in '/home' directory."
+        echo "for create rclone use command - 'rclone config'."
+        exit
+    fi
+
     mkdir -p ~/.config/rclone
     cp ~/rclone.conf ~/.config/rclone/ 
-    echo -e "\e[36m rclone set finished \e[0m"
+    echo -e "$BLUE rclone set finished $NC"
 
     read -p "Enter Rclone remote name (e.g., mydrive-one): " remote_name
     read -p "Enter destination folder (e.g., Download/MOVIES): " dest_folder
 
     cd ~/Downloads
-    echo -e "\e[36m Transfering Last Downloaded File.. \e[0m"
+    echo -e "$BLUE Transfering Last Downloaded File.. $NC"
     latest_file=$(ls -t | awk "NR==1")
     rclone copy "$latest_file" "$remote_name:$dest_folder" -P
-    echo -e "\e[36m Completed\e[em"
+    echo -e "$GREEN Completed $NC"
+
+    echo -e "$GREEN Exit ? [enter] $NC"
+    read choise
+    
 }
 
 while true; do
@@ -74,8 +91,7 @@ while true; do
     case $choice in
         1) downloader ;;
         2) cloud_transfer ;;
-        3) echo "You selected Option 3";;
-        4) echo "Exiting..."; exit;;
+        3) echo "Exiting..."; exit;;
         *) echo "Invalid choice, try again!"; sleep 3;;
     esac
 done
