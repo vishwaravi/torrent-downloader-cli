@@ -6,7 +6,7 @@ echo -e "\e[36m Installed qbittorrent-nox \e[0m"
 
 sleep 1
 
-echo -e "\e[36m started serveo \e[0m"
+echo -e "\e[36m Starting qbittorrent Client \e[0m"
 echo "y" | qbittorrent-nox > qbitt_out.log 2>&1 &
 qbit_pid=$! 
 
