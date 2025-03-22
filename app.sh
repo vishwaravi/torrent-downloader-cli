@@ -16,32 +16,42 @@ downloader(){
     sudo apt install qbittorrent-nox -y
     echo -e "$BLUE Installed qbittorrent-nox $NC"
     
+    if ! command ngrok -v &> /dev/null; then
+        echo -e "$BLUE Ngrok not Found. Installing... $NC"
+        curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+	    | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+	    && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+	    | sudo tee /etc/apt/sources.list.d/ngrok.list \
+	    && sudo apt update \
+	    && sudo apt install ngrok
+    fi
+    
     sleep 1
+    ngrok config add-authtoken 2uet4N88Q30raXN0CpCHKjGHzRQ_6h91okzoEFMet2Ub8EFLN
 
     echo -e "$BLUE Starting qbittorrent Client $NC"
     yes | qbittorrent-nox > qbitt_out.log &
-    qbit_pid=$! 
+    qbit_pid=$!
+
+    sleep 3
+
+    # ngrok http --url=romantic-buffalo-openly.ngrok-free.app 8080 & 
+    ngrok http --url=romantic-buffalo-openly.ngrok-free.app 8080 > ltunnel.log 2>&1 &
+    # ltunnel_pid=$!
+
     echo -e "$BLUE wait.... $NC"
-
-    sleep 4
-
-    ssh -T  -o StrictHostKeyChecking=no -R 80:localhost:8080 serveo.net > serveo.log  2>&1 & 
-    serveo_pid=$!
-    echo -e "$BLUE wait.... $NC"
-
-    sleep 4
+    sleep 2
 
     qbit=$(cat qbitt_out.log)
-    serveo=$(cat serveo.log)
 
-    echo -e "$BLUE torrent client Started... $NC"
+    echo -e "$GREEN torrent client Started... $NC"
     echo -e "$BLUE $qbit $NC"
-    echo -e "$BLUE Running at : $serveo $NC"
+    echo -e "$GREEN Running at : https://romantic-buffalo-openly.ngrok-free.app $NC"
     echo -e "$BLUE Paste the link on Browser : $NC"
     echo -e "$GREEN stop ? [enter] $NC" 
     read choise
 
-    kill $serveo_pid
+    kill $ltunnel_pid
     kill $qbit_pid
 
     echo -e "$GREEN BYE... $NC"
@@ -49,9 +59,9 @@ downloader(){
 
 cloud_transfer(){
     echo -e "$BLUE Installing Rclone.. $NC"
-    sudo apt install rclone
+    sudo apt install rclone -y
     echo -e "$GREEN Installed Rclone. $NC"
-
+    sudo apt install fzf -y
     echo -e "$BLUE Do you have rclone.conf for your cloud ? [y/n] $NC"
     read ans
 
@@ -69,13 +79,13 @@ cloud_transfer(){
     read -p "Enter destination folder (e.g., Download/MOVIES): " dest_folder
 
     cd ~/Downloads
-    echo -e "$BLUE Transfering Last Downloaded File.. $NC"
-    latest_file=$(ls -t | awk "NR==1")
-    rclone copy "$latest_file" "$remote_name:$dest_folder" -P
+    selected_content=$(ls -t | fzf)
+    echo -e "$BLUE Selected $selected_content $NC"
+    rclone copy "$selected_content" "$remote_name:$dest_folder" -P
     echo -e "$GREEN Completed $NC"
-
     echo -e "$GREEN Exit ? [enter] $NC"
     read choise
+    d_state="active"
     
 }
 
