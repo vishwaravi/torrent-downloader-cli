@@ -1,8 +1,9 @@
 # Torrent-downloader-cli
 
-### this script used to download torrent file or transfer files to your cloud provider (gdrive, onedrive) through _Rclone_ config
-
-## setup :
+### This Script used to download torrent files or transfer files to your Cloud Storage from a remote cloud machine.
+- torrent client - *qbittorrent-nox*
+- file transfer - *rclone*
+## Installation :
 ```javascript
 
 sudo apt install git && 
