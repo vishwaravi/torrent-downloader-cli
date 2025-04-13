@@ -70,7 +70,9 @@ cloud_transfer(){
     fi
 
     mkdir -p ~/.config/rclone
-    cp ~/rclone.conf ~/.config/rclone/ 
+    sudo mkdir /root/.config/rclone
+    cp ~/rclone.conf ~/.config/rclone/
+    sudo cp ~/rclone.conf /root/.config/rclone/
     echo -e "$BLUE rclone set finished $NC"
 
     read -p "Enter Rclone remote name (e.g., mydrive-one): " remote_name
