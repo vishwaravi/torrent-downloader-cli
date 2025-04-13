@@ -15,7 +15,7 @@ downloader(){
     echo -e "$BLUE Downloading Qbittorrent nox...$NC"
     sudo apt install qbittorrent-nox -y
     echo -e "$BLUE Installed qbittorrent-nox $NC"
-    
+
     if ! command ngrok -v &> /dev/null; then
         echo -e "$BLUE Ngrok not Found. Installing... $NC"
         curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
@@ -28,21 +28,19 @@ downloader(){
     
     sleep 1
     ngrok config add-authtoken 2uet4N88Q30raXN0CpCHKjGHzRQ_6h91okzoEFMet2Ub8EFLN
-
+    
     echo -e "$BLUE Starting qbittorrent Client $NC"
-    yes | qbittorrent-nox > qbitt_out.log &
-    qbit_pid=$!
+    yes | qbittorrent-nox > qbitt_out.log 2>&1 &
 
     sleep 3
 
-    # ngrok http --url=romantic-buffalo-openly.ngrok-free.app 8080 & 
+    qbit=$(cat qbitt_out.log)
+    
     ngrok http --url=romantic-buffalo-openly.ngrok-free.app 8080 > ltunnel.log 2>&1 &
-    # ltunnel_pid=$!
 
     echo -e "$BLUE wait.... $NC"
     sleep 2
 
-    qbit=$(cat qbitt_out.log)
 
     echo -e "$GREEN torrent client Started... $NC"
     echo -e "$BLUE $qbit $NC"
@@ -51,8 +49,8 @@ downloader(){
     echo -e "$GREEN stop ? [enter] $NC" 
     read choise
 
-    kill $ltunnel_pid
-    kill $qbit_pid
+    pkill pkill ngrok
+    pkill qbittorrent-nox
 
     echo -e "$GREEN BYE... $NC"
 }
@@ -71,8 +69,8 @@ cloud_transfer(){
         exit
     fi
 
-    mkdir -p ~/.config/rclone
-    cp ~/rclone.conf ~/.config/rclone/ 
+    sudo mkdir -p ~/.config/rclone
+    sudo cp ~/rclone.conf ~/.config/rclone/ 
     echo -e "$BLUE rclone set finished $NC"
 
     read -p "Enter Rclone remote name (e.g., mydrive-one): " remote_name
@@ -81,7 +79,7 @@ cloud_transfer(){
     cd ~/Downloads
     selected_content=$(ls -t | fzf)
     echo -e "$BLUE Selected $selected_content $NC"
-    rclone copy "$selected_content" "$remote_name:$dest_folder" -P
+    sudo rclone copy "$selected_content" "$remote_name:$dest_folder" -P
     echo -e "$GREEN Completed $NC"
     echo -e "$GREEN Exit ? [enter] $NC"
     read choise
