@@ -16,18 +16,6 @@ downloader(){
     sudo apt install qbittorrent-nox -y
     echo -e "$BLUE Installed qbittorrent-nox $NC"
 
-    if ! command ngrok -v &> /dev/null; then
-        echo -e "$BLUE Ngrok not Found. Installing... $NC"
-        curl -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
-	    | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
-	    && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
-	    | sudo tee /etc/apt/sources.list.d/ngrok.list \
-	    && sudo apt update \
-	    && sudo apt install ngrok
-    fi
-    
-    sleep 1
-    ngrok config add-authtoken 2uet4N88Q30raXN0CpCHKjGHzRQ_6h91okzoEFMet2Ub8EFLN
     
     echo -e "$BLUE Starting qbittorrent Client $NC"
     yes | qbittorrent-nox > qbitt_out.log 2>&1 &
@@ -36,7 +24,14 @@ downloader(){
 
     qbit=$(cat qbitt_out.log)
     
-    ngrok http --url=romantic-buffalo-openly.ngrok-free.app 8080 > ltunnel.log 2>&1 &
+    npx -y localtunnel --port 8080 > lt_output.log 2>&1 &   
+    while true; do
+        tunnel_url=$(grep -o 'https://[a-zA-Z0-9.-]*\.loca.lt' lt_output.log | head -n 1)
+        if [[ -n "$tunnel_url" ]]; then
+            break
+        fi
+        sleep 1
+    done
 
     echo -e "$BLUE wait.... $NC"
     sleep 2
@@ -44,12 +39,11 @@ downloader(){
 
     echo -e "$GREEN torrent client Started... $NC"
     echo -e "$BLUE $qbit $NC"
-    echo -e "$GREEN Running at : https://romantic-buffalo-openly.ngrok-free.app $NC"
+    echo -e "$GREEN Running at : $tunnel_url $NC"
     echo -e "$BLUE Paste the link on Browser : $NC"
     echo -e "$GREEN stop ? [enter] $NC" 
     read choise
 
-    pkill pkill ngrok
     pkill qbittorrent-nox
 
     echo -e "$GREEN BYE... $NC"
