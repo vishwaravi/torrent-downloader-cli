@@ -24,9 +24,11 @@ downloader(){
 
     qbit=$(cat qbitt_out.log)
     
-    npx -y localtunnel --port 8080 > lt_output.log 2>&1 &   
+    # Start Serveo SSH tunnel (no login, no password required)
+    ssh -o StrictHostKeyChecking=no -R 80:localhost:8080 serveo.net > serveo_output.log 2>&1 &
+    # Wait for Serveo to print the public URL
     while true; do
-        tunnel_url=$(grep -o 'https://[a-zA-Z0-9.-]*\.loca.lt' lt_output.log | head -n 1)
+        tunnel_url=$(grep -o 'https://[a-zA-Z0-9.-]*\.serveo.net' serveo_output.log | head -n 1)
         if [[ -n "$tunnel_url" ]]; then
             break
         fi
